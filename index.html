@@ -25,11 +25,13 @@ input,select,button{font:inherit}
 input,select{width:100%;padding:12px;background:#17120f;border:1px solid var(--line);border-radius:6px;color:var(--text);margin-bottom:13px}
 button{cursor:pointer}
 .primary{background:var(--gold);color:#21170f;border:0;padding:12px 16px;border-radius:6px;font-weight:bold}
+.secondary{background:transparent;color:var(--gold);border:1px solid var(--line);padding:10px;border-radius:6px;margin-bottom:13px;width:100%}
 .tabs{display:flex;gap:8px;overflow:auto;margin:20px 0}
 .tab{background:transparent;color:var(--muted);border:1px solid var(--line);padding:9px 13px;border-radius:20px;white-space:nowrap}
 .tab.active{background:var(--gold);color:#21170f;border-color:var(--gold)}
 .book{display:flex;gap:13px;padding:15px 0;border-bottom:1px solid var(--line)}
-.cover{width:62px;min-width:62px;height:88px;background:#453126;border:1px solid #71553d;display:grid;place-items:center;color:var(--gold);font-size:27px}
+.cover{width:82px;min-width:82px;height:118px;background:#453126;border:1px solid #71553d;display:grid;place-items:center;color:var(--gold);font-size:27px;overflow:hidden}
+.cover img{width:100%;height:100%;object-fit:cover}
 .bookinfo{flex:1;min-width:0}
 .book h3{margin:0 0 5px;font-size:17px;font-weight:normal;overflow-wrap:anywhere}
 .book p{margin:0 0 8px;color:var(--muted);font-size:13px}
@@ -37,7 +39,7 @@ button{cursor:pointer}
 .progress div{height:100%;background:var(--gold)}
 .small{font-size:12px;color:var(--muted)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
-.actions button{background:transparent;border:1px solid var(--line);color:var(--text);padding:6px 9px;border-radius:5px;font-size:12px}
+.actions button{background:transparent;border:1px solid var(--line);color:var(--text);padding:7px 9px;border-radius:5px;font-size:12px}
 .empty{color:var(--muted);text-align:center;padding:28px 10px}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:28px}
 @media(min-width:600px){.layout{display:grid;grid-template-columns:270px 1fr;gap:20px;align-items:start}.stats{margin-bottom:22px}}
@@ -73,6 +75,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:28px}
 <option value="Lendo">Lendo</option>
 <option value="Concluído">Concluído</option>
 </select>
+<label for="coverInput">Capa do livro (opcional)</label>
+<input id="coverInput" type="file" accept="image/*">
 <button class="primary" type="submit">＋ Adicionar à estante</button>
 </form>
 </section>
@@ -94,29 +98,142 @@ let books=[];
 try{books=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){books=[]}
 let filter='Todos';
 const $=id=>document.getElementById(id);
-function save(){localStorage.setItem(KEY,JSON.stringify(books));render()}
-function render(){
-$('total').textContent=books.length;
-$('reading').textContent=books.filter(b=>b.status==='Lendo').length;
-$('finished').textContent=books.filter(b=>b.status==='Concluído').length;
-const shown=books.filter(b=>filter==='Todos'||b.status===filter);
-$('books').innerHTML=shown.length?shown.map(b=>{
-const pct=Math.min(100,Math.round(b.current/b.pages*100));
-return `<article class="book"><div class="cover">✦</div><div class="bookinfo"><h3>${esc(b.title)}</h3><p>${esc(b.author||'Autor não informado')}</p><span class="small">${b.current} de ${b.pages} páginas · ${pct}%</span><div class="progress"><div style="width:${pct}%"></div></div><span class="small">${b.status}</span><div class="actions"><button onclick="advance(${b.id})">＋ Página lida</button><button onclick="changeStatus(${b.id})">Alterar status</button><button onclick="removeBook(${b.id})">Excluir</button></div></div></article>`
-}).join(''):'<div class="empty">Sua estante está vazia nesta categoria.<br>Adicione seu primeiro livro.</div>';
+
+function save(){
+ try{
+  localStorage.setItem(KEY,JSON.stringify(books));
+  render();
+ }catch(e){
+  alert('O armazenamento está cheio. Escolha uma imagem menor e tente novamente.');
+ }
 }
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-$('bookForm').addEventListener('submit',e=>{
-e.preventDefault();
-const pages=Number($('pages').value),current=Number($('current').value);
-if(pages<1||current<0||current>pages){alert('Confira o total de páginas e a página atual.');return}
-books.push({id:Date.now(),title:$('title').value.trim(),author:$('author').value.trim(),pages,current,status:current===pages?'Concluído':$('status').value});
-save();e.target.reset();$('current').value=0;
+
+function readCover(file){
+ return new Promise((resolve,reject)=>{
+  if(!file){resolve('');return}
+  if(!file.type.startsWith('image/')){reject(new Error('Selecione uma imagem.'));return}
+  const reader=new FileReader();
+  reader.onload=()=>{
+   const img=new Image();
+   img.onload=()=>{
+    const canvas=document.createElement('canvas');
+    const maxW=240,maxH=340;
+    const scale=Math.min(maxW/img.width,maxH/img.height,1);
+    canvas.width=Math.round(img.width*scale);
+    canvas.height=Math.round(img.height*scale);
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    resolve(canvas.toDataURL('image/jpeg',0.75));
+   };
+   img.onerror=()=>reject(new Error('Não foi possível abrir a imagem.'));
+   img.src=reader.result;
+  };
+  reader.onerror=()=>reject(new Error('Não foi possível ler a imagem.'));
+  reader.readAsDataURL(file);
+ });
+}
+
+function render(){
+ $('total').textContent=books.length;
+ $('reading').textContent=books.filter(b=>b.status==='Lendo').length;
+ $('finished').textContent=books.filter(b=>b.status==='Concluído').length;
+ const shown=books.filter(b=>filter==='Todos'||b.status===filter);
+ $('books').innerHTML=shown.length?shown.map(b=>{
+  const pct=Math.min(100,Math.round(b.current/b.pages*100));
+  return `<article class="book">
+   <div class="cover">${b.cover?`<img src="${b.cover}" alt="Capa de ${esc(b.title)}">`:'✦'}</div>
+   <div class="bookinfo">
+    <h3>${esc(b.title)}</h3>
+    <p>${esc(b.author||'Autor não informado')}</p>
+    <span class="small">${b.current} de ${b.pages} páginas · ${pct}%</span>
+    <div class="progress"><div style="width:${pct}%"></div></div>
+    <span class="small">${esc(b.status)}</span>
+    <div class="actions">
+     <button onclick="advance(${b.id})">＋ Página lida</button>
+     <button onclick="changeStatus(${b.id})">Alterar status</button>
+     <button onclick="changeCover(${b.id})">Trocar capa</button>
+     <button onclick="removeBook(${b.id})">Excluir</button>
+    </div>
+   </div>
+  </article>`;
+ }).join(''):'<div class="empty">Sua estante está vazia nesta categoria.<br>Adicione seu primeiro livro.</div>';
+}
+
+function esc(s){
+ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+$('bookForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const pages=Number($('pages').value),current=Number($('current').value);
+ if(pages<1||current<0||current>pages){
+  alert('Confira o total de páginas e a página atual.');return;
+ }
+ const submit=e.submitter;
+ if(submit)submit.disabled=true;
+ try{
+  const cover=await readCover($('coverInput').files[0]);
+  books.push({
+   id:Date.now(),
+   title:$('title').value.trim(),
+   author:$('author').value.trim(),
+   pages,current,
+   status:current===pages?'Concluído':$('status').value,
+   cover
+  });
+  save();
+  e.target.reset();
+  $('current').value=0;
+ }catch(err){
+  alert(err.message||'Não foi possível carregar a capa.');
+ }finally{
+  if(submit)submit.disabled=false;
+ }
 });
-function advance(id){const b=books.find(x=>x.id===id);if(!b)return;b.current=Math.min(b.pages,b.current+1);if(b.current===b.pages)b.status='Concluído';save()}
-function changeStatus(id){const b=books.find(x=>x.id===id);if(!b)return;const choices=['Quero ler','Lendo','Concluído'];b.status=choices[(choices.indexOf(b.status)+1)%choices.length];if(b.status==='Concluído')b.current=b.pages;save()}
-function removeBook(id){if(confirm('Deseja excluir este livro?')){books=books.filter(b=>b.id!==id);save()}}
-document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.filter;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===btn));render()}));
+
+function advance(id){
+ const b=books.find(x=>x.id===id);if(!b)return;
+ b.current=Math.min(b.pages,b.current+1);
+ if(b.current===b.pages)b.status='Concluído';
+ save();
+}
+
+function changeStatus(id){
+ const b=books.find(x=>x.id===id);if(!b)return;
+ const choices=['Quero ler','Lendo','Concluído'];
+ b.status=choices[(choices.indexOf(b.status)+1)%choices.length];
+ if(b.status==='Concluído')b.current=b.pages;
+ save();
+}
+
+function removeBook(id){
+ if(confirm('Deseja excluir este livro?')){
+  books=books.filter(b=>b.id!==id);save();
+ }
+}
+
+function changeCover(id){
+ const b=books.find(x=>x.id===id);if(!b)return;
+ const picker=document.createElement('input');
+ picker.type='file';
+ picker.accept='image/*';
+ picker.onchange=async()=>{
+  if(!picker.files||!picker.files[0])return;
+  try{
+   b.cover=await readCover(picker.files[0]);
+   save();
+  }catch(err){
+   alert(err.message||'Não foi possível trocar a capa.');
+  }
+ };
+ picker.click();
+}
+
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+ filter=btn.dataset.filter;
+ document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===btn));
+ render();
+}));
 render();
 </script>
 </body>
