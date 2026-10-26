@@ -1,443 +1,124 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estante Literária</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <style>
-    :root {
-      --bg-dark: #120e0c;
-      --card-bg: #221a16;
-      --card-border: #362923;
-      --input-bg: #1a1310;
-      --text-main: #eae4dc;
-      --text-muted: #a6988a;
-      --accent-gold: #c89f68;
-      --accent-gold-hover: #b88f58;
-    }
+<script>
+  let biblioteca = JSON.parse(localStorage.getItem('minha_estante_livros')) || [];
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  async function buscarCapaAuto() {
+    const titulo = document.getElementById('titulo').value.trim();
+    if (!titulo) return;
 
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      min-height: 100vh;
-      padding-bottom: 40px;
-    }
+    try {
+      const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(titulo)}`);
+      const data = await response.json();
 
-    /* BANNER SUPERIOR COM CAPA DE LIVRARIA */
-    .hero-banner {
-      position: relative;
-      height: 320px;
-      background-image: linear-gradient(to bottom, rgba(18, 14, 12, 0.4), rgba(18, 14, 12, 0.95)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1000&auto=format&fit=crop');
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 24px;
-      border-bottom-left-radius: 24px;
-      border-bottom-right-radius: 24px;
-      margin-bottom: 20px;
-    }
-
-    .hero-subtitle {
-      font-size: 0.75rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--accent-gold);
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    .hero-title {
-      font-family: 'Merriweather', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 8px;
-    }
-
-    .hero-description {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      font-style: italic;
-    }
-
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-
-    /* GRID DE ESTATÍSTICAS */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .stat-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    /* FORMULÁRIO DE ADIÇÃO */
-    .form-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 24px;
-    }
-
-    .form-title {
-      font-family: 'Merriweather', serif;
-      font-size: 1.1rem;
-      color: var(--text-main);
-      margin-bottom: 16px;
-    }
-
-    .form-group {
-      margin-bottom: 14px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .input-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    select {
-      width: 100%;
-      background-color: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 12px;
-      color: var(--text-main);
-      font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--accent-gold);
-    }
-
-    .btn-submit {
-      width: 100%;
-      background-color: var(--accent-gold);
-      color: #120e0c;
-      border: none;
-      border-radius: 10px;
-      padding: 14px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: background-color 0.2s;
-    }
-
-    .btn-submit:hover {
-      background-color: var(--accent-gold-hover);
-    }
-
-    /* LISTA DE LIVROS */
-    .section-title {
-      font-family: 'Merriweather', serif;
-      font-size: 1.2rem;
-      margin-bottom: 16px;
-      color: var(--text-main);
-    }
-
-    .books-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .book-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      position: relative;
-    }
-
-    .book-cover {
-      width: 55px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 6px;
-      background-color: var(--input-bg);
-    }
-
-    .book-info {
-      flex: 1;
-    }
-
-    .book-title-item {
-      font-weight: 600;
-      font-size: 0.95rem;
-      margin-bottom: 2px;
-    }
-
-    .book-author {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .progress-bar {
-      height: 6px;
-      background-color: var(--input-bg);
-      border-radius: 3px;
-      overflow: hidden;
-      margin-bottom: 6px;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background-color: var(--accent-gold);
-      width: 0%;
-      transition: width 0.3s;
-    }
-
-    .book-stats {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .btn-delete {
-      background: none;
-      border: none;
-      color: #8a4a4a;
-      cursor: pointer;
-      font-size: 0.8rem;
-      padding: 4px;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- BANNER COM FOTO DA LIVRARIA -->
-  <div class="hero-banner">
-    <div class="container" style="padding:0;">
-      <span class="hero-subtitle">Sua Biblioteca Pessoal</span>
-      <h1 class="hero-title">Estante Literária</h1>
-      <p class="hero-description">Um refúgio entre páginas, histórias e descobertas.</p>
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- CARDS DE ESTATÍSTICAS -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total de páginas lidas</div>
-        <div class="stat-value" id="stat-paginas">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Livros cadastrados</div>
-        <div class="stat-value" id="stat-livros">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Livros concluídos</div>
-        <div class="stat-value" id="stat-concluidos">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Páginas neste mês</div>
-        <div class="stat-value" id="stat-mes">0</div>
-      </div>
-    </div>
-
-    <!-- FORMULÁRIO -->
-    <div class="form-card">
-      <h2 class="form-title">Adicionar um livro</h2>
-      
-      <div class="form-group">
-        <label>Título do livro (Pesquisa automática de capa)</label>
-        <input type="text" id="titulo" placeholder="Ex.: O Iluminado" onblur="buscarCapaAuto()">
-      </div>
-
-      <div class="form-group">
-        <label>Autor</label>
-        <input type="text" id="autor" placeholder="Ex.: Stephen King">
-      </div>
-
-      <div class="input-row">
-        <div class="form-group">
-          <label>Total de páginas</label>
-          <input type="number" id="totalPaginas" placeholder="Ex.: 400">
-        </div>
-        <div class="form-group">
-          <label>Página atual</label>
-          <input type="number" id="paginaAtual" placeholder="0">
-        </div>
-      </div>
-
-      <input type="hidden" id="capaUrl">
-
-      <button class="btn-submit" onclick="adicionarLivro()">Adicionar livro</button>
-    </div>
-
-    <!-- LISTA DE LIVROS -->
-    <h2 class="section-title">Minha Estante</h2>
-    <div class="books-grid" id="lista-livros">
-      <!-- Livros entram aqui -->
-    </div>
-  </div>
-
-  <script>
-    let biblioteca = JSON.parse(localStorage.getItem('minha_estante_livros')) || [];
-
-    async function buscarCapaAuto() {
-      const titulo = document.getElementById('titulo').value.trim();
-      if (!titulo) return;
-
-      try {
-        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(titulo)}`);
-        const data = await response.json();
-
-        if (data.items && data.items.length > 0) {
-          const info = data.items[0].volumeInfo;
-          if (info.imageLinks && info.imageLinks.thumbnail) {
-            document.getElementById('capaUrl').value = info.imageLinks.thumbnail.replace('http://', 'https://');
-          }
-          if (info.authors && !document.getElementById('autor').value) {
-            document.getElementById('autor').value = info.authors.join(', ');
-          }
-          if (info.pageCount && !document.getElementById('totalPaginas').value) {
-            document.getElementById('totalPaginas').value = info.pageCount;
-          }
-        }
-      } catch (e) {
-        console.log('Erro na busca da capa:', e);
-      }
-    }
-
-    function adicionarLivro() {
-      const titulo = document.getElementById('titulo').value;
-      const autor = document.getElementById('autor').value || 'Autor Desconhecido';
-      const totalPaginas = parseInt(document.getElementById('totalPaginas').value) || 0;
-      const paginaAtual = parseInt(document.getElementById('paginaAtual').value) || 0;
-      const capaUrl = document.getElementById('capaUrl').value || 'https://via.placeholder.com/150x220/221a16/eae4dc?text=Sem+Capa';
-
-      if (!titulo) {
-        alert('Por favor, informe o título do livro.');
-        return;
-      }
-
-      const novoLivro = {
-        id: Date.now(),
-        titulo,
-        autor,
-        totalPaginas,
-        paginaAtual,
-        capaUrl
-      };
-
-      biblioteca.push(novoLivro);
-      salvarEAtualizar();
-
-      // Limpa campos
-      document.getElementById('titulo').value = '';
-      document.getElementById('autor').value = '';
-      document.getElementById('totalPaginas').value = '';
-      document.getElementById('paginaAtual').value = '';
-      document.getElementById('capaUrl').value = '';
-    }
-
-    function removerLivro(id) {
-      biblioteca = biblioteca.filter(l => l.id !== id);
-      salvarEAtualizar();
-    }
-
-    function salvarEAtualizar() {
-      localStorage.setItem('minha_estante_livros', JSON.stringify(biblioteca));
-      renderizar();
-    }
-
-    function renderizar() {
-      const lista = document.getElementById('lista-livros');
-      lista.innerHTML = '';
-
-      let totalPaginasLidas = 0;
-      let concluidos = 0;
-
-      biblioteca.forEach(livro => {
-        totalPaginasLidas += livro.paginaAtual;
-        if (livro.paginaAtual >= livro.totalPaginas && livro.totalPaginas > 0) {
-          concluidos++;
+      if (data.items && data.items.length > 0) {
+        const info = data.items[0].volumeInfo;
+        
+        // Trata e força o link da imagem para HTTPS
+        if (info.imageLinks) {
+          let urlCapa = info.imageLinks.thumbnail || info.imageLinks.smallThumbnail || '';
+          urlCapa = urlCapa.replace('http://', 'https://');
+          document.getElementById('capaUrl').value = urlCapa;
         }
 
-        const pct = livro.totalPaginas > 0 ? Math.min(100, Math.round((livro.paginaAtual / livro.totalPaginas) * 100)) : 0;
+        if (info.authors && info.authors.length > 0) {
+          document.getElementById('autor').value = info.authors.join(', ');
+        }
+        if (info.pageCount) {
+          document.getElementById('totalPaginas').value = info.pageCount;
+        }
+      }
+    } catch (e) {
+      console.log('Erro na busca da capa:', e);
+    }
+  }
 
-        lista.innerHTML += `
-          <div class="book-card">
-            <img src="${livro.capaUrl}" class="book-cover" alt="Capa">
-            <div class="book-info">
-              <div class="book-title-item">${livro.titulo}</div>
-              <div class="book-author">${livro.autor}</div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: ${pct}%"></div>
-              </div>
-              <div class="book-stats">
-                <span>${livro.paginaAtual} / ${livro.totalPaginas} pág. (${pct}%)</span>
-                <button class="btn-delete" onclick="removerLivro(${livro.id})">Excluir</button>
-              </div>
+  function adicionarLivro() {
+    const titulo = document.getElementById('titulo').value.trim();
+    const autor = document.getElementById('autor').value.trim() || 'Autor Desconhecido';
+    const totalPaginas = parseInt(document.getElementById('totalPaginas').value) || 0;
+    const paginaAtual = parseInt(document.getElementById('paginaAtual').value) || 0;
+    const capaUrl = document.getElementById('capaUrl').value.trim();
+
+    if (!titulo) {
+      alert('Por favor, informe o título do livro.');
+      return;
+    }
+
+    const novoLivro = {
+      id: Date.now(),
+      titulo,
+      autor,
+      totalPaginas,
+      paginaAtual,
+      capaUrl
+    };
+
+    biblioteca.push(novoLivro);
+    salvarEAtualizar();
+
+    // Limpa os campos após adicionar
+    document.getElementById('titulo').value = '';
+    document.getElementById('autor').value = '';
+    document.getElementById('totalPaginas').value = '';
+    document.getElementById('paginaAtual').value = '';
+    document.getElementById('capaUrl').value = '';
+  }
+
+  function removerLivro(id) {
+    biblioteca = biblioteca.filter(l => l.id !== id);
+    salvarEAtualizar();
+  }
+
+  function salvarEAtualizar() {
+    localStorage.setItem('minha_estante_livros', JSON.stringify(biblioteca));
+    renderizar();
+  }
+
+  function renderizar() {
+    const lista = document.getElementById('lista-livros');
+    lista.innerHTML = '';
+
+    let totalPaginasLidas = 0;
+    let concluidos = 0;
+
+    biblioteca.forEach(livro => {
+      totalPaginasLidas += livro.paginaAtual;
+      if (livro.paginaAtual >= livro.totalPaginas && livro.totalPaginas > 0) {
+        concluidos++;
+      }
+
+      const pct = livro.totalPaginas > 0 ? Math.min(100, Math.round((livro.paginaAtual / livro.totalPaginas) * 100)) : 0;
+
+      // Se não houver capa encontrada, cria uma capa com design elegante
+      const imagemHTML = livro.capaUrl 
+        ? `<img src="${livro.capaUrl}" class="book-cover" alt="Capa" onerror="this.onerror=null; this.src='https://placehold.co/110x160/241c18/c89f68?text=${encodeURIComponent(livro.titulo)}';">`
+        : `<div class="book-cover" style="display:flex; align-items:center; justify-content:center; text-align:center; padding:4px; font-size:0.65rem; background:#1a1310; color:#c89f68; border:1px solid #362923;">${livro.titulo}</div>`;
+
+      lista.innerHTML += `
+        <div class="book-card">
+          ${imagemHTML}
+          <div class="book-info">
+            <div class="book-title-item">${livro.titulo}</div>
+            <div class="book-author">${livro.autor}</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${pct}%"></div>
+            </div>
+            <div class="book-stats">
+              <span>${livro.paginaAtual} / ${livro.totalPaginas} pág. (${pct}%)</span>
+              <button class="btn-delete" onclick="removerLivro(${livro.id})">Excluir</button>
             </div>
           </div>
-        `;
-      });
+        </div>
+      `;
+    });
 
-      // Atualiza Estatísticas
-      document.getElementById('stat-paginas').innerText = totalPaginasLidas;
-      document.getElementById('stat-livros').innerText = biblioteca.length;
-      document.getElementById('stat-concluidos').innerText = concluidos;
-      document.getElementById('stat-mes').innerText = totalPaginasLidas;
-    }
+    // Atualiza os indicadores de estatísticas
+    document.getElementById('stat-paginas').innerText = totalPaginasLidas;
+    document.getElementById('stat-livros').innerText = biblioteca.length;
+    document.getElementById('stat-concluidos').innerText = concluidos;
+    document.getElementById('stat-mes').innerText = totalPaginasLidas;
+  }
 
-    // Carrega na abertura
-    renderizar();
-  </script>
-</body>
-</html>
+  // Carrega a estante ao abrir a página
+  renderizar();
+        </script>
+        
