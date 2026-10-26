@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#241914">
+<title>Estante Literária</title>
+<style>
+:root{--bg:#17120f;--panel:#251c17;--gold:#c7a675;--text:#eee3d2;--muted:#b3a18d;--line:#49372a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,serif}
+header{padding:28px 20px 22px;background:#241914;border-bottom:1px solid var(--line)}
+.eyebrow{color:var(--gold);font-size:11px;letter-spacing:3px;text-transform:uppercase}
+h1{font-size:30px;margin:9px 0 5px;font-weight:normal}
+header p{color:var(--muted);font-size:14px;margin:0}
+main{max-width:800px;margin:auto;padding:20px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:22px}
+.stat,.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.stat strong{display:block;color:var(--gold);font-size:24px;font-weight:normal}
+.stat span{font-size:12px;color:var(--muted)}
+h2{font-size:20px;font-weight:normal;margin:0 0 15px}
+label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+input,select,button{font:inherit}
+input,select{width:100%;padding:12px;background:#17120f;border:1px solid var(--line);border-radius:6px;color:var(--text);margin-bottom:13px}
+button{cursor:pointer}
+.primary{background:var(--gold);color:#21170f;border:0;padding:12px 16px;border-radius:6px;font-weight:bold}
+.tabs{display:flex;gap:8px;overflow:auto;margin:20px 0}
+.tab{background:transparent;color:var(--muted);border:1px solid var(--line);padding:9px 13px;border-radius:20px;white-space:nowrap}
+.tab.active{background:var(--gold);color:#21170f;border-color:var(--gold)}
+.book{display:flex;gap:13px;padding:15px 0;border-bottom:1px solid var(--line)}
+.cover{width:62px;min-width:62px;height:88px;background:#453126;border:1px solid #71553d;display:grid;place-items:center;color:var(--gold);font-size:27px}
+.bookinfo{flex:1;min-width:0}
+.book h3{margin:0 0 5px;font-size:17px;font-weight:normal;overflow-wrap:anywhere}
+.book p{margin:0 0 8px;color:var(--muted);font-size:13px}
+.progress{height:4px;background:#49372a;margin:9px 0}
+.progress div{height:100%;background:var(--gold)}
+.small{font-size:12px;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.actions button{background:transparent;border:1px solid var(--line);color:var(--text);padding:6px 9px;border-radius:5px;font-size:12px}
+.empty{color:var(--muted);text-align:center;padding:28px 10px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:28px}
+@media(min-width:600px){.layout{display:grid;grid-template-columns:270px 1fr;gap:20px;align-items:start}.stats{margin-bottom:22px}}
+</style>
+</head>
+<body>
+<header>
+<div class="eyebrow">Biblioteca pessoal</div>
+<h1>Estante Literária</h1>
+<p>Entre páginas, sombras e outros mundos.</p>
+</header>
+<main>
+<section class="stats">
+<div class="stat"><strong id="total">0</strong><span>Livros na estante</span></div>
+<div class="stat"><strong id="reading">0</strong><span>Em leitura</span></div>
+<div class="stat"><strong id="finished">0</strong><span>Concluídos</span></div>
+</section>
+<div class="layout">
+<section class="panel">
+<h2>Adicionar livro</h2>
+<form id="bookForm">
+<label for="title">Título do livro</label>
+<input id="title" required placeholder="Ex.: O Cemitério">
+<label for="author">Autor</label>
+<input id="author" placeholder="Nome do autor">
+<label for="pages">Total de páginas</label>
+<input id="pages" type="number" min="1" required placeholder="Ex.: 320">
+<label for="current">Página atual</label>
+<input id="current" type="number" min="0" value="0" required>
+<label for="status">Status da leitura</label>
+<select id="status">
+<option value="Quero ler">Quero ler</option>
+<option value="Lendo">Lendo</option>
+<option value="Concluído">Concluído</option>
+</select>
+<button class="primary" type="submit">＋ Adicionar à estante</button>
+</form>
+</section>
+<section>
+<div class="tabs">
+<button class="tab active" data-filter="Todos">Todos</button>
+<button class="tab" data-filter="Lendo">Lendo</button>
+<button class="tab" data-filter="Quero ler">Quero ler</button>
+<button class="tab" data-filter="Concluído">Concluídos</button>
+</div>
+<div id="books"></div>
+</section>
+</div>
+</main>
+<footer>Estante Literária · Um livro de cada vez</footer>
+<script>
+const KEY='estante-literaria-livros-v1';
+let books=[];
+try{books=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){books=[]}
+let filter='Todos';
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(books));render()}
+function render(){
+$('total').textContent=books.length;
+$('reading').textContent=books.filter(b=>b.status==='Lendo').length;
+$('finished').textContent=books.filter(b=>b.status==='Concluído').length;
+const shown=books.filter(b=>filter==='Todos'||b.status===filter);
+$('books').innerHTML=shown.length?shown.map(b=>{
+const pct=Math.min(100,Math.round(b.current/b.pages*100));
+return `<article class="book"><div class="cover">✦</div><div class="bookinfo"><h3>${esc(b.title)}</h3><p>${esc(b.author||'Autor não informado')}</p><span class="small">${b.current} de ${b.pages} páginas · ${pct}%</span><div class="progress"><div style="width:${pct}%"></div></div><span class="small">${b.status}</span><div class="actions"><button onclick="advance(${b.id})">＋ Página lida</button><button onclick="changeStatus(${b.id})">Alterar status</button><button onclick="removeBook(${b.id})">Excluir</button></div></div></article>`
+}).join(''):'<div class="empty">Sua estante está vazia nesta categoria.<br>Adicione seu primeiro livro.</div>';
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('bookForm').addEventListener('submit',e=>{
+e.preventDefault();
+const pages=Number($('pages').value),current=Number($('current').value);
+if(pages<1||current<0||current>pages){alert('Confira o total de páginas e a página atual.');return}
+books.push({id:Date.now(),title:$('title').value.trim(),author:$('author').value.trim(),pages,current,status:current===pages?'Concluído':$('status').value});
+save();e.target.reset();$('current').value=0;
+});
+function advance(id){const b=books.find(x=>x.id===id);if(!b)return;b.current=Math.min(b.pages,b.current+1);if(b.current===b.pages)b.status='Concluído';save()}
+function changeStatus(id){const b=books.find(x=>x.id===id);if(!b)return;const choices=['Quero ler','Lendo','Concluído'];b.status=choices[(choices.indexOf(b.status)+1)%choices.length];if(b.status==='Concluído')b.current=b.pages;save()}
+function removeBook(id){if(confirm('Deseja excluir este livro?')){books=books.filter(b=>b.id!==id);save()}}
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.filter;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===btn));render()}));
+render();
+</script>
+</body>
+</html>
