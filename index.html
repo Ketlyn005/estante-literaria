@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Estante Literária</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,6 @@
       --text-main: #eae4dc;
       --text-muted: #a6988a;
       --accent-gold: #c89f68;
-      --accent-gold-hover: #b88f58;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,12 +26,11 @@
       color: var(--text-main);
       font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
-      padding-bottom: 50px;
+      padding-bottom: 60px;
     }
 
     .hero-banner {
-      position: relative;
-      height: 220px;
+      height: 180px;
       background-image: linear-gradient(to bottom, rgba(18, 14, 12, 0.4), rgba(18, 14, 12, 0.95)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1000&auto=format&fit=crop');
       background-size: cover;
       background-position: center;
@@ -48,10 +46,8 @@
     .hero-subtitle { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-gold); font-weight: 600; }
     .hero-title { font-family: 'Merriweather', serif; font-size: 1.8rem; font-weight: 700; color: #fff; margin-top: 4px; }
 
-    .container { max-width: 550px; margin: 0 auto; padding: 0 16px; }
+    .container { max-width: 500px; margin: 0 auto; padding: 0 16px; }
 
-    .section-title { font-family: 'Merriweather', serif; font-size: 1.1rem; margin: 20px 0 12px 0; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; }
-    
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
     .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; }
     .stat-label { font-size: 0.75rem; color: var(--text-muted); }
@@ -59,30 +55,37 @@
 
     .metas-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; margin-bottom: 20px; }
     .meta-item { margin-bottom: 10px; }
-    .meta-item:last-child { margin-bottom: 0; }
     .meta-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
 
-    .search-box { width: 100%; margin-bottom: 12px; }
-    .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; scrollbar-width: none; }
-    .filter-btn { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-muted); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; white-space: nowrap; cursor: pointer; }
+    .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; }
+    .filter-btn { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-muted); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; white-space: nowrap; }
     .filter-btn.active { background: var(--accent-gold); color: #120e0c; font-weight: 700; border-color: var(--accent-gold); }
 
     .form-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; margin-bottom: 24px; }
     .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+    .form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
     .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    input[type="text"], input[type="number"], input[type="date"], select {
+    input[type="text"], input[type="number"], input[type="date"], select, input[type="file"] {
       width: 100%; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; color: var(--text-main); font-size: 0.85rem; outline: none;
     }
-    input:focus, select:focus { border-color: var(--accent-gold); }
 
-    .file-btn { display: block; background: var(--input-bg); border: 1px dashed var(--accent-gold); color: var(--accent-gold); padding: 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; text-align: center; width: 100%; }
+    /* ESTILO PARA O BOTÃO DE UPLOAD DE ARQUIVO */
+    input[type="file"]::file-selector-button {
+      background: var(--card-border);
+      color: var(--accent-gold);
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
 
-    .btn-submit { width: 100%; background-color: var(--accent-gold); color: #120e0c; border: none; border-radius: 8px; padding: 12px; font-weight: 700; font-size: 0.9rem; cursor: pointer; margin-top: 10px; }
+    button { cursor: pointer; touch-action: manipulation; }
+    .btn-submit { width: 100%; background-color: var(--accent-gold); color: #120e0c; border: none; border-radius: 8px; padding: 12px; font-weight: 700; font-size: 0.9rem; margin-top: 10px; }
 
     .books-grid { display: flex; flex-direction: column; gap: 12px; }
-    .book-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; gap: 12px; position: relative; }
+    .book-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; gap: 12px; }
     .book-cover { width: 60px; height: 90px; object-fit: cover; border-radius: 6px; background-color: var(--input-bg); flex-shrink: 0; }
     .book-info { flex: 1; min-width: 0; }
     .book-title-item { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
@@ -90,16 +93,17 @@
     .book-genre { font-size: 0.7rem; color: var(--accent-gold); margin-bottom: 6px; }
 
     .progress-bar { height: 6px; background-color: var(--input-bg); border-radius: 3px; overflow: hidden; margin: 6px 0; }
-    .progress-fill { height: 100%; background-color: var(--accent-gold); width: 0%; transition: width 0.3s; }
+    .progress-fill { height: 100%; background-color: var(--accent-gold); width: 0%; }
 
-    .book-actions { display: flex; gap: 6px; margin-top: 8px; }
-    .btn-small { background: var(--input-bg); border: 1px solid var(--card-border); color: var(--text-main); font-size: 0.75rem; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
-    .btn-small.accent { border-color: var(--accent-gold); color: var(--accent-gold); }
+    .book-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .btn-action { background: var(--input-bg); border: 1px solid var(--card-border); color: var(--text-main); font-size: 0.75rem; padding: 8px 12px; border-radius: 6px; }
+    .btn-action.accent { border-color: var(--accent-gold); color: var(--accent-gold); }
 
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; padding: 20px; overflow-y: auto; align-items: center; justify-content: center; }
+    /* MODAL EDIÇÃO */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999; padding: 20px; overflow-y: auto; align-items: center; justify-content: center; }
     .modal.active { display: flex; }
     .modal-content { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; width: 100%; max-width: 480px; position: relative; }
-    .close-modal { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; }
+    .close-modal { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 1.6rem; }
   </style>
 </head>
 <body>
@@ -112,7 +116,6 @@
   </div>
 
   <div class="container">
-    
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-label">Páginas Lidas</div><div class="stat-value" id="stat-paginas">0</div></div>
       <div class="stat-card"><div class="stat-label">Em Andamento</div><div class="stat-value" id="stat-lendo">0</div></div>
@@ -129,12 +132,12 @@
         <div class="meta-header"><span>Meta Anual</span><span id="meta-a-texto">0/0 livros</span></div>
         <div class="progress-bar"><div class="progress-fill" id="meta-a-bar"></div></div>
       </div>
-      <button class="btn-small accent" style="width:100%; margin-top:10px;" id="btn-metas">Ajustar Metas</button>
+      <button class="btn-action accent" style="width:100%; margin-top:10px;" id="btn-metas">Ajustar Metas</button>
     </div>
 
-    <input type="text" id="busca" class="search-box" placeholder="🔎 Pesquisar por título ou autor...">
+    <input type="text" id="busca" placeholder="🔎 Pesquisar livro ou autor..." style="margin-bottom: 12px;">
     
-    <div class="filter-scroll">
+    <div class="filter-scroll" id="filtros-container">
       <button class="filter-btn active" data-cat="todos">Todos</button>
       <button class="filter-btn" data-cat="Lendo">Lendo</button>
       <button class="filter-btn" data-cat="Quero ler">Quero ler</button>
@@ -164,8 +167,8 @@
 
       <div class="input-row">
         <div class="form-group">
-          <label>Total de Páginas</label>
-          <input type="number" id="totalPaginas" placeholder="Ex.: 320">
+          <label>Total Páginas</label>
+          <input type="number" id="totalPaginas" placeholder="320">
         </div>
         <div class="form-group">
           <label>Página Atual</label>
@@ -173,37 +176,34 @@
         </div>
       </div>
 
-      <div class="input-row">
-        <div class="form-group">
-          <label>Categoria / Status</label>
-          <select id="categoria">
-            <option value="Quero ler">Quero ler</option>
-            <option value="Lendo">Lendo</option>
-            <option value="Pausados">Pausados</option>
-            <option value="Abandonados">Abandonados</option>
-            <option value="Concluídos">Concluídos</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Capa (Galeria)</label>
-          <label for="capaArquivo" class="file-btn">📁 Selecionar Foto</label>
-          <input type="file" id="capaArquivo" accept="image/*" style="display:none;">
-        </div>
+      <div class="form-group">
+        <label>Status / Categoria</label>
+        <select id="categoria">
+          <option value="Quero ler">Quero ler</option>
+          <option value="Lendo">Lendo</option>
+          <option value="Pausados">Pausados</option>
+          <option value="Abandonados">Abandonados</option>
+          <option value="Concluídos">Concluídos</option>
+        </select>
       </div>
 
-      <input type="hidden" id="capaBase64">
+      <div class="form-group">
+        <label>Escolher Capa da Galeria</label>
+        <input type="file" id="capaArquivo" accept="image/*">
+      </div>
 
       <button class="btn-submit" id="btn-adicionar">Adicionar à Estante</button>
     </div>
 
-    <h2 class="section-title">Meus Livros</h2>
+    <h2 style="font-family:'Merriweather'; font-size:1.1rem; margin-bottom:12px;">Meus Livros</h2>
     <div class="books-grid" id="lista-livros"></div>
   </div>
 
+  <!-- MODAL DE EDIÇÃO -->
   <div class="modal" id="modalLivro">
     <div class="modal-content">
       <button class="close-modal" id="btn-fechar-modal">&times;</button>
-      <h3 style="font-family:'Merriweather'; margin-bottom:12px;">Detalhes / Editar Livro</h3>
+      <h3 style="font-family:'Merriweather'; margin-bottom:12px;">Editar / Detalhes</h3>
       
       <input type="hidden" id="mod-id">
       
@@ -218,11 +218,6 @@
         <div class="form-group"><label>Página Atual</label><input type="number" id="mod-atual"></div>
       </div>
 
-      <div class="input-row">
-        <div class="form-group"><label>Data Início</label><input type="date" id="mod-inicio"></div>
-        <div class="form-group"><label>Data Término</label><input type="date" id="mod-termino"></div>
-      </div>
-
       <div class="form-group">
         <label>Status / Categoria</label>
         <select id="mod-categoria">
@@ -235,58 +230,41 @@
       </div>
 
       <div class="form-group">
-        <label>Trocar Capa</label>
-        <label for="mod-capaArquivo" class="file-btn">🖼️ Escolher outra foto</label>
-        <input type="file" id="mod-capaArquivo" accept="image/*" style="display:none;">
+        <label>Trocar Capa pela Galeria</label>
+        <input type="file" id="mod-capaArquivo" accept="image/*">
       </div>
 
       <div style="display:flex; gap:8px; margin-top:16px;">
-        <button class="btn-submit" id="btn-salvar-edicao">Salvar</button>
-        <button class="btn-submit" style="background:#8a3b3b; color:#fff;" id="btn-excluir-modal">Excluir</button>
+        <button class="btn-submit" id="btn-salvar-edicao">Salvar Alterações</button>
+        <button class="btn-submit" style="background:#8a3b3b; color:#fff;" id="btn-excluir-modal">Excluir Livro</button>
       </div>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      let biblioteca = JSON.parse(localStorage.getItem('estante_completa_v1')) || [];
-      let metas = JSON.parse(localStorage.getItem('estante_metas_v1')) || { mensal: 2, anual: 24 };
+    // Execução direta após o carregamento da página
+    window.onload = function() {
+      let biblioteca = JSON.parse(localStorage.getItem('estante_v3')) || [];
+      let metas = JSON.parse(localStorage.getItem('estante_metas_v3')) || { mensal: 2, anual: 24 };
       let categoriaAtual = 'todos';
+      let capaBase64Temp = '';
 
-      // EVENTOS DE IMAGEM DA GALERIA
-      document.getElementById('capaArquivo').addEventListener('change', (e) => {
+      // CONVERSOR DE IMAGEM
+      document.getElementById('capaArquivo').onchange = function(e) {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = (evt) => {
-            document.getElementById('capaBase64').value = evt.target.result;
-            alert("Imagem selecionada!");
+          reader.onload = function(evt) {
+            capaBase64Temp = evt.target.result;
           };
           reader.readAsDataURL(file);
         }
-      });
+      };
 
-      document.getElementById('mod-capaArquivo').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (evt) => {
-            const id = Number(document.getElementById('mod-id').value);
-            const livro = biblioteca.find(l => l.id === id);
-            if (livro) {
-              livro.capaUrl = evt.target.result;
-              salvarEAtualizar();
-              alert("Capa atualizada!");
-            }
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-
-      // BUSCA CAPA AUTOMÁTICA
-      document.getElementById('titulo').addEventListener('blur', async () => {
-        const titulo = document.getElementById('titulo').value.trim();
-        if (!titulo || document.getElementById('capaBase64').value) return;
+      // BUSCA CAPA AUTOMÁTICA SE NÃO SELECIONOU NA GALERIA
+      document.getElementById('titulo').onblur = async function() {
+        const titulo = this.value.trim();
+        if (!titulo || capaBase64Temp) return;
 
         try {
           const res = await fetch('https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(titulo));
@@ -294,7 +272,7 @@
           if (data.items && data.items.length > 0) {
             const info = data.items[0].volumeInfo;
             if (info.imageLinks && info.imageLinks.thumbnail) {
-              document.getElementById('capaBase64').value = info.imageLinks.thumbnail.replace('http://', 'https://');
+              capaBase64Temp = info.imageLinks.thumbnail.replace('http://', 'https://');
             }
             if (info.authors && !document.getElementById('autor').value) {
               document.getElementById('autor').value = info.authors.join(', ');
@@ -304,12 +282,15 @@
             }
           }
         } catch (err) {}
-      });
+      };
 
-      // ADICIONAR LIVRO
-      document.getElementById('btn-adicionar').addEventListener('click', () => {
+      // BOTÃO ADICIONAR
+      document.getElementById('btn-adicionar').onclick = function() {
         const titulo = document.getElementById('titulo').value.trim();
-        if (!titulo) return alert("Por favor, digite o título do livro!");
+        if (!titulo) {
+          alert("Por favor, digite o título do livro!");
+          return;
+        }
 
         const totalPaginas = parseInt(document.getElementById('totalPaginas').value) || 0;
         let paginaAtual = parseInt(document.getElementById('paginaAtual').value) || 0;
@@ -321,57 +302,61 @@
 
         const livro = {
           id: Date.now(),
-          titulo,
+          titulo: titulo,
           autor: document.getElementById('autor').value.trim() || 'Desconhecido',
           genero: document.getElementById('genero').value.trim() || 'Geral',
-          totalPaginas,
-          paginaAtual,
-          categoria,
-          capaUrl: document.getElementById('capaBase64').value || '',
-          dataInicio: categoria === 'Lendo' ? new Date().toISOString().split('T')[0] : '',
-          dataTermino: categoria === 'Concluídos' ? new Date().toISOString().split('T')[0] : ''
+          totalPaginas: totalPaginas,
+          paginaAtual: paginaAtual,
+          categoria: categoria,
+          capaUrl: capaBase64Temp
         };
 
         biblioteca.push(livro);
-        salvarEAtualizar();
+        salvar();
 
+        // Limpa campos
         document.getElementById('titulo').value = '';
         document.getElementById('autor').value = '';
         document.getElementById('genero').value = '';
         document.getElementById('totalPaginas').value = '';
         document.getElementById('paginaAtual').value = '';
-        document.getElementById('capaBase64').value = '';
-      });
+        document.getElementById('capaArquivo').value = '';
+        capaBase64Temp = '';
+      };
 
-      // FILTROS DE CATEGORIA
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-          e.target.classList.add('active');
-          categoriaAtual = e.target.getAttribute('data-cat');
+      // FILTROS
+      const btnsFiltro = document.querySelectorAll('.filter-btn');
+      btnsFiltro.forEach(function(btn) {
+        btn.onclick = function() {
+          btnsFiltro.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          categoriaAtual = this.getAttribute('data-cat');
           renderizar();
-        });
+        };
       });
 
-      // BUSCA
-      document.getElementById('busca').addEventListener('input', renderizar);
+      // PESQUISA
+      document.getElementById('busca').oninput = function() {
+        renderizar();
+      };
 
       // METAS
-      document.getElementById('btn-metas').addEventListener('click', () => {
+      document.getElementById('btn-metas').onclick = function() {
         const m = prompt("Meta Mensal (livros):", metas.mensal);
         const a = prompt("Meta Anual (livros):", metas.anual);
         if (m) metas.mensal = parseInt(m) || 1;
         if (a) metas.anual = parseInt(a) || 1;
-        localStorage.setItem('estante_metas_v1', JSON.stringify(metas));
+        localStorage.setItem('estante_metas_v3', JSON.stringify(metas));
         renderizar();
-      });
+      };
 
-      // MODAL DE EDIÇÃO
-      document.getElementById('btn-fechar-modal').addEventListener('click', () => {
+      // MODAL FECHAR
+      document.getElementById('btn-fechar-modal').onclick = function() {
         document.getElementById('modalLivro').classList.remove('active');
-      });
+      };
 
-      document.getElementById('btn-salvar-edicao').addEventListener('click', () => {
+      // SALVAR EDIÇÃO NO MODAL
+      document.getElementById('btn-salvar-edicao').onclick = function() {
         const id = Number(document.getElementById('mod-id').value);
         const l = biblioteca.find(item => item.id === id);
         
@@ -381,45 +366,45 @@
           l.genero = document.getElementById('mod-genero').value;
           l.totalPaginas = parseInt(document.getElementById('mod-total').value) || 0;
           l.paginaAtual = parseInt(document.getElementById('mod-atual').value) || 0;
-          l.dataInicio = document.getElementById('mod-inicio').value;
-          l.dataTermino = document.getElementById('mod-termino').value;
           l.categoria = document.getElementById('mod-categoria').value;
 
-          if (l.paginaAtual >= l.totalPaginas && l.totalPaginas > 0) {
-            l.categoria = 'Concluídos';
+          const fileInput = document.getElementById('mod-capaArquivo');
+          if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+              l.capaUrl = evt.target.result;
+              salvar();
+              document.getElementById('modalLivro').classList.remove('active');
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+          } else {
+            salvar();
+            document.getElementById('modalLivro').classList.remove('active');
           }
-
-          salvarEAtualizar();
-          document.getElementById('modalLivro').classList.remove('active');
         }
-      });
+      };
 
-      document.getElementById('btn-excluir-modal').addEventListener('click', () => {
+      // EXCLUIR
+      document.getElementById('btn-excluir-modal').onclick = function() {
         const id = Number(document.getElementById('mod-id').value);
         biblioteca = biblioteca.filter(l => l.id !== id);
-        salvarEAtualizar();
+        salvar();
         document.getElementById('modalLivro').classList.remove('active');
-      });
+      };
 
-      function salvarEAtualizar() {
-        localStorage.setItem('estante_completa_v1', JSON.stringify(biblioteca));
+      function salvar() {
+        localStorage.setItem('estante_v3', JSON.stringify(biblioteca));
         renderizar();
       }
 
       function renderizar() {
         const lista = document.getElementById('lista-livros');
-        const termoBusca = document.getElementById('busca').value.toLowerCase();
+        const termo = document.getElementById('busca').value.toLowerCase();
         lista.innerHTML = '';
 
         let totalPaginas = 0;
         let lendoCount = 0;
         let concluidosCount = 0;
-
-        const livrosFiltrados = biblioteca.filter(l => {
-          const atendeCat = categoriaAtual === 'todos' || l.categoria === categoriaAtual;
-          const atendeBusca = l.titulo.toLowerCase().includes(termoBusca) || l.autor.toLowerCase().includes(termoBusca);
-          return atendeCat && atendeBusca;
-        });
 
         biblioteca.forEach(l => {
           totalPaginas += l.paginaAtual;
@@ -427,5 +412,12 @@
           if (l.categoria === 'Concluídos') concluidosCount++;
         });
 
-        livrosFiltrados.forEach(l => {
-          const pct = l.totalPaginas > 0 ? 
+        const filtrados = biblioteca.filter(l => {
+          const catOk = categoriaAtual === 'todos' || l.categoria === categoriaAtual;
+          const buscaOk = l.titulo.toLowerCase().includes(termo) || l.autor.toLowerCase().includes(termo);
+          return catOk && buscaOk;
+        });
+
+        filtrados.forEach(l => {
+          const pct = l.totalPaginas > 0 ? Math.min(100, Math.round((l.paginaAtual
+    
