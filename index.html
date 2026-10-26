@@ -66,11 +66,10 @@
     .form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
     .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    input[type="text"], input[type="number"], input[type="date"], select, input[type="file"] {
+    input[type="text"], input[type="number"], select, input[type="file"] {
       width: 100%; background-color: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; color: var(--text-main); font-size: 0.85rem; outline: none;
     }
 
-    /* ESTILO PARA O BOTÃO DE UPLOAD DE ARQUIVO */
     input[type="file"]::file-selector-button {
       background: var(--card-border);
       color: var(--accent-gold);
@@ -137,7 +136,7 @@
 
     <input type="text" id="busca" placeholder="🔎 Pesquisar livro ou autor..." style="margin-bottom: 12px;">
     
-    <div class="filter-scroll" id="filtros-container">
+    <div class="filter-scroll">
       <button class="filter-btn active" data-cat="todos">Todos</button>
       <button class="filter-btn" data-cat="Lendo">Lendo</button>
       <button class="filter-btn" data-cat="Quero ler">Quero ler</button>
@@ -199,7 +198,7 @@
     <div class="books-grid" id="lista-livros"></div>
   </div>
 
-  <!-- MODAL DE EDIÇÃO -->
+  <!-- MODAL EDIÇÃO -->
   <div class="modal" id="modalLivro">
     <div class="modal-content">
       <button class="close-modal" id="btn-fechar-modal">&times;</button>
@@ -242,27 +241,44 @@
   </div>
 
   <script>
-    // Execução direta após o carregamento da página
-    window.onload = function() {
-      let biblioteca = JSON.parse(localStorage.getItem('estante_v3')) || [];
-      let metas = JSON.parse(localStorage.getItem('estante_metas_v3')) || { mensal: 2, anual: 24 };
+    window.addEventListener('DOMContentLoaded', function() {
+      let biblioteca = JSON.parse(localStorage.getItem('estante_v4')) || [];
+      let metas = JSON.parse(localStorage.getItem('estante_metas_v4')) || { mensal: 2, anual: 24 };
       let categoriaAtual = 'todos';
       let capaBase64Temp = '';
 
-      // CONVERSOR DE IMAGEM
-      document.getElementById('capaArquivo').onchange = function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(evt) {
-            capaBase64Temp = evt.target.result;
-          };
-          reader.readAsDataURL(file);
-        }
-      };
+      // FUNÇÃO PARA COMPRIMIR IMAGENS DA GALERIA
+      function comprimirImagem(file, callback) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 300;
+            const scaleSize = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH;
+            canvas.height = img.height * scaleSize;
 
-      // BUSCA CAPA AUTOMÁTICA SE NÃO SELECIONOU NA GALERIA
-      document.getElementById('titulo').onblur = async function() {
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            callback(canvas.toDataURL('image/jpeg', 0.7));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // SELEÇÃO DE CAPA NO CADASTRO
+      document.getElementById('capaArquivo').addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+          comprimirImagem(e.target.files[0], function(base64) {
+            capaBase64Temp = base64;
+          });
+        }
+      });
+
+      // BUSCA AUTOMÁTICA DE CAPA
+      document.getElementById('titulo').addEventListener('blur', async function() {
         const titulo = this.value.trim();
         if (!titulo || capaBase64Temp) return;
 
@@ -282,10 +298,11 @@
             }
           }
         } catch (err) {}
-      };
+      });
 
-      // BOTÃO ADICIONAR
-      document.getElementById('btn-adicionar').onclick = function() {
+      // ADICIONAR LIVRO
+      document.getElementById('btn-adicionar').addEventListener('click', function(e) {
+        e.preventDefault();
         const titulo = document.getElementById('titulo').value.trim();
         if (!titulo) {
           alert("Por favor, digite o título do livro!");
@@ -314,7 +331,6 @@
         biblioteca.push(livro);
         salvar();
 
-        // Limpa campos
         document.getElementById('titulo').value = '';
         document.getElementById('autor').value = '';
         document.getElementById('genero').value = '';
@@ -322,41 +338,39 @@
         document.getElementById('paginaAtual').value = '';
         document.getElementById('capaArquivo').value = '';
         capaBase64Temp = '';
-      };
+      });
 
       // FILTROS
       const btnsFiltro = document.querySelectorAll('.filter-btn');
       btnsFiltro.forEach(function(btn) {
-        btn.onclick = function() {
+        btn.addEventListener('click', function() {
           btnsFiltro.forEach(b => b.classList.remove('active'));
           this.classList.add('active');
           categoriaAtual = this.getAttribute('data-cat');
           renderizar();
-        };
+        });
       });
 
       // PESQUISA
-      document.getElementById('busca').oninput = function() {
-        renderizar();
-      };
+      document.getElementById('busca').addEventListener('input', renderizar);
 
       // METAS
-      document.getElementById('btn-metas').onclick = function() {
+      document.getElementById('btn-metas').addEventListener('click', function() {
         const m = prompt("Meta Mensal (livros):", metas.mensal);
         const a = prompt("Meta Anual (livros):", metas.anual);
         if (m) metas.mensal = parseInt(m) || 1;
         if (a) metas.anual = parseInt(a) || 1;
-        localStorage.setItem('estante_metas_v3', JSON.stringify(metas));
+        localStorage.setItem('estante_metas_v4', JSON.stringify(metas));
         renderizar();
-      };
+      });
 
       // MODAL FECHAR
-      document.getElementById('btn-fechar-modal').onclick = function() {
+      document.getElementById('btn-fechar-modal').addEventListener('click', function() {
         document.getElementById('modalLivro').classList.remove('active');
-      };
+      });
 
-      // SALVAR EDIÇÃO NO MODAL
-      document.getElementById('btn-salvar-edicao').onclick = function() {
+      // SALVAR EDIÇÃO
+      document.getElementById('btn-salvar-edicao').addEventListener('click', function() {
         const id = Number(document.getElementById('mod-id').value);
         const l = biblioteca.find(item => item.id === id);
         
@@ -370,30 +384,32 @@
 
           const fileInput = document.getElementById('mod-capaArquivo');
           if (fileInput.files && fileInput.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-              l.capaUrl = evt.target.result;
+            comprimirImagem(fileInput.files[0], function(base64) {
+              l.capaUrl = base64;
               salvar();
               document.getElementById('modalLivro').classList.remove('active');
-            };
-            reader.readAsDataURL(fileInput.files[0]);
+            });
           } else {
             salvar();
             document.getElementById('modalLivro').classList.remove('active');
           }
         }
-      };
+      });
 
       // EXCLUIR
-      document.getElementById('btn-excluir-modal').onclick = function() {
+      document.getElementById('btn-excluir-modal').addEventListener('click', function() {
         const id = Number(document.getElementById('mod-id').value);
         biblioteca = biblioteca.filter(l => l.id !== id);
         salvar();
         document.getElementById('modalLivro').classList.remove('active');
-      };
+      });
 
       function salvar() {
-        localStorage.setItem('estante_v3', JSON.stringify(biblioteca));
+        try {
+          localStorage.setItem('estante_v4', JSON.stringify(biblioteca));
+        } catch(e) {
+          alert("A memória local está cheia. Tente remover alguns livros antigos.");
+        }
         renderizar();
       }
 
@@ -419,5 +435,18 @@
         });
 
         filtrados.forEach(l => {
-          const pct = l.totalPaginas > 0 ? Math.min(100, Math.round((l.paginaAtual
-    
+          const pct = l.totalPaginas > 0 ? Math.min(100, Math.round((l.paginaAtual / l.totalPaginas) * 100)) : 0;
+          
+          const capaHTML = l.capaUrl 
+            ? `<img src="${l.capaUrl}" class="book-cover">`
+            : `<div class="book-cover" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:4px;font-size:0.6rem;color:#c89f68;">${l.titulo}</div>`;
+
+          const card = document.createElement('div');
+          card.className = 'book-card';
+          card.innerHTML = `
+            ${capaHTML}
+            <div class="book-info">
+              <div class="book-title-item">${l.titulo}</div>
+              <div class="book-author">${l.autor}</div>
+              <div class="book-genre">${l.genero} • <b style="color:var(--text-muted);">${l.categoria}</b></div>
+  
