@@ -1,23 +1,25 @@
+
 {
   "name": "Estante Literária",
   "short_name": "Estante",
   "description": "Um refúgio entre páginas, histórias e descobertas.",
-  "start_url": "./index.html",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#120e0c",
   "theme_color": "#120e0c",
   "icons": [
     {
-      "src": "https://i.ibb.co/680Lh8vP/estante-pura.png",
+      "src": "./adde5e1cab0245b2ec5bf2f794c78f28.jpg",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/jpeg",
+      "purpose": "any"
     },
     {
-      "src": "https://i.ibb.co/680Lh8vP/estante-pura.png",
+      "src": "./adde5e1cab0245b2ec5bf2f794c78f28.jpg",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/jpeg",
+      "purpose": "any"
     }
   ]
 }
