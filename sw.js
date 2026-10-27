@@ -1,4 +1,4 @@
-const CACHE_NAME = 'estante-v3';
+const CACHE_NAME = 'estante-v4';
 const urlsToCache = [
   './',
   './index.html',
