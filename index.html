@@ -58,7 +58,7 @@
     .meta-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
 
     .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; }
-    .filter-btn { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-muted); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; white-space: nowrap; }
+    .filter-btn { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-muted); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; white-space: nowrap; cursor: pointer; }
     .filter-btn.active { background: var(--accent-gold); color: #120e0c; font-weight: 700; border-color: var(--accent-gold); }
 
     .form-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; margin-bottom: 24px; }
@@ -80,8 +80,8 @@
       margin-right: 8px;
     }
 
-    button { cursor: pointer; touch-action: manipulation; }
-    .btn-submit { width: 100%; background-color: var(--accent-gold); color: #120e0c; border: none; border-radius: 8px; padding: 12px; font-weight: 700; font-size: 0.9rem; margin-top: 10px; }
+    button, input[type="submit"] { cursor: pointer; touch-action: manipulation; }
+    .btn-submit { width: 100%; background-color: var(--accent-gold); color: #120e0c; border: none; border-radius: 8px; padding: 12px; font-weight: 700; font-size: 0.9rem; margin-top: 10px; display: block; text-align: center; }
 
     .books-grid { display: flex; flex-direction: column; gap: 12px; }
     .book-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; gap: 12px; }
@@ -130,26 +130,27 @@
         <div class="meta-header"><span>Meta Anual</span><span id="meta-a-texto">0/0 livros</span></div>
         <div class="progress-bar"><div class="progress-fill" id="meta-a-bar"></div></div>
       </div>
-      <button class="btn-action accent" style="width:100%; margin-top:10px;" onclick="definirMetas()">Ajustar Metas</button>
+      <button class="btn-action accent" style="width:100%; margin-top:10px;" type="button" onclick="definirMetas()">Ajustar Metas</button>
     </div>
 
     <input type="text" id="busca" placeholder="🔎 Pesquisar livro ou autor..." style="margin-bottom: 12px;" oninput="renderizar()">
     
     <div class="filter-scroll">
-      <button class="filter-btn active" onclick="filtrar('todos', this)">Todos</button>
-      <button class="filter-btn" onclick="filtrar('Lendo', this)">Lendo</button>
-      <button class="filter-btn" onclick="filtrar('Quero ler', this)">Quero ler</button>
-      <button class="filter-btn" onclick="filtrar('Concluídos', this)">Concluídos</button>
-      <button class="filter-btn" onclick="filtrar('Pausados', this)">Pausados</button>
-      <button class="filter-btn" onclick="filtrar('Abandonados', this)">Abandonados</button>
+      <button class="filter-btn active" type="button" onclick="filtrar('todos', this)">Todos</button>
+      <button class="filter-btn" type="button" onclick="filtrar('Lendo', this)">Lendo</button>
+      <button class="filter-btn" type="button" onclick="filtrar('Quero ler', this)">Quero ler</button>
+      <button class="filter-btn" type="button" onclick="filtrar('Concluídos', this)">Concluídos</button>
+      <button class="filter-btn" type="button" onclick="filtrar('Pausados', this)">Pausados</button>
+      <button class="filter-btn" type="button" onclick="filtrar('Abandonados', this)">Abandonados</button>
     </div>
 
-    <div class="form-card">
+    <!-- FORMULÁRIO COM SUBMISSÃO PADRÃO -->
+    <form class="form-card" id="form-livro" onsubmit="adicionarLivro(event)">
       <h2 style="font-family:'Merriweather'; font-size:1rem; margin-bottom:12px;">Cadastrar Novo Livro</h2>
       
       <div class="form-group">
         <label>Título *</label>
-        <input type="text" id="titulo" placeholder="Ex.: O Cemitério" onblur="buscarCapaGoogle()">
+        <input type="text" id="titulo" placeholder="Ex.: O Cemitério" required onblur="buscarCapaGoogle()">
       </div>
 
       <div class="input-row">
@@ -190,8 +191,8 @@
         <input type="file" id="capaArquivo" accept="image/*" onchange="processarCapaGaleria(this)">
       </div>
 
-      <button type="button" class="btn-submit" onclick="adicionarLivro()">Adicionar à Estante</button>
-    </div>
+      <input type="submit" class="btn-submit" value="Adicionar à Estante">
+    </form>
 
     <h2 style="font-family:'Merriweather'; font-size:1.1rem; margin-bottom:12px;">Meus Livros</h2>
     <div class="books-grid" id="lista-livros"></div>
@@ -200,7 +201,7 @@
   <!-- MODAL EDIÇÃO -->
   <div class="modal" id="modalLivro">
     <div class="modal-content">
-      <button class="close-modal" onclick="fecharModal()">&times;</button>
+      <button class="close-modal" type="button" onclick="fecharModal()">&times;</button>
       <h3 style="font-family:'Merriweather'; margin-bottom:12px;">Editar / Detalhes</h3>
       
       <input type="hidden" id="mod-id">
@@ -246,18 +247,16 @@
     let capaTemp = '';
     let capaModalTemp = '';
 
-    // INICIALIZAÇÃO
     window.onload = function() {
       try {
-        biblioteca = JSON.parse(localStorage.getItem('estante_v5')) || [];
-        metas = JSON.parse(localStorage.getItem('metas_v5')) || { mensal: 2, anual: 24 };
+        biblioteca = JSON.parse(localStorage.getItem('estante_v6')) || [];
+        metas = JSON.parse(localStorage.getItem('metas_v6')) || { mensal: 2, anual: 24 };
       } catch(e) {
         biblioteca = [];
       }
       renderizar();
     };
 
-    // COMPRESSOR DE IMAGEM DA GALERIA
     function comprimirFoto(file, callback) {
       if (!file) return;
       const reader = new FileReader();
@@ -265,14 +264,14 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const maxDim = 300;
+          const maxDim = 250;
           let w = img.width, h = img.height;
           if (w > h) { if (w > maxDim) { h *= maxDim / w; w = maxDim; } }
           else { if (h > maxDim) { w *= maxDim / h; h = maxDim; } }
           canvas.width = w; canvas.height = h;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
-          callback(canvas.toDataURL('image/jpeg', 0.6));
+          callback(canvas.toDataURL('image/jpeg', 0.5));
         };
         img.src = e.target.result;
       };
@@ -295,7 +294,6 @@
       }
     }
 
-    // BUSCA AUTOMÁTICA GOOGLE BOOKS
     async function buscarCapaGoogle() {
       const t = document.getElementById('titulo').value.trim();
       if (!t || capaTemp) return;
@@ -317,13 +315,11 @@
       } catch(e) {}
     }
 
-    // ADICIONAR LIVRO
-    function adicionarLivro() {
+    function adicionarLivro(e) {
+      if (e) e.preventDefault();
+
       const titulo = document.getElementById('titulo').value.trim();
-      if (!titulo) {
-        alert("Digite ao menos o título do livro!");
-        return;
-      }
+      if (!titulo) return;
 
       const total = parseInt(document.getElementById('totalPaginas').value) || 0;
       let atual = parseInt(document.getElementById('paginaAtual').value) || 0;
@@ -345,7 +341,6 @@
       biblioteca.push(novo);
       salvar();
 
-      // Limpa campos
       document.getElementById('titulo').value = '';
       document.getElementById('autor').value = '';
       document.getElementById('genero').value = '';
@@ -353,9 +348,10 @@
       document.getElementById('paginaAtual').value = '';
       document.getElementById('capaArquivo').value = '';
       capaTemp = '';
+
+      alert('Livro adicionado com sucesso!');
     }
 
-    // FILTROS
     function filtrar(cat, btn) {
       categoriaFiltro = cat;
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -363,17 +359,15 @@
       renderizar();
     }
 
-    // METAS
     function definirMetas() {
       const m = prompt("Meta Mensal de livros:", metas.mensal);
       const a = prompt("Meta Anual de livros:", metas.anual);
       if (m) metas.mensal = parseInt(m) || 1;
       if (a) metas.anual = parseInt(a) || 1;
-      localStorage.setItem('metas_v5', JSON.stringify(metas));
+      localStorage.setItem('metas_v6', JSON.stringify(metas));
       renderizar();
     }
 
-    // MODAL
     function abrirModal(id) {
       const l = biblioteca.find(item => item.id === id);
       if (!l) return;
@@ -427,9 +421,9 @@
 
     function salvar() {
       try {
-        localStorage.setItem('estante_v5', JSON.stringify(biblioteca));
+        localStorage.setItem('estante_v6', JSON.stringify(biblioteca));
       } catch(e) {
-        alert("O armazenamento do celular está cheio.");
+        alert("O armazenamento do telemóvel está cheio.");
       }
       renderizar();
     }
@@ -465,4 +459,4 @@
             <div class="book-info">
               <div class="book-title-item">${l.titulo}</div>
               <div class="book-author">${l.autor}</div>
-              <div class="book-genre">${l.genero} • <b style="color:var(--text-muted);">${l.categoria}</b>
+            
