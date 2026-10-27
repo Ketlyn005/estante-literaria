@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Estante Literária</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -24,7 +21,7 @@
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family: system-ui, -apple-system, sans-serif;
       min-height: 100vh;
       padding-bottom: 60px;
     }
@@ -44,7 +41,7 @@
     }
 
     .hero-subtitle { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-gold); font-weight: 600; }
-    .hero-title { font-family: 'Merriweather', serif; font-size: 1.8rem; font-weight: 700; color: #fff; margin-top: 4px; }
+    .hero-title { font-family: Georgia, serif; font-size: 1.8rem; font-weight: 700; color: #fff; margin-top: 4px; }
 
     .container { max-width: 500px; margin: 0 auto; padding: 0 16px; }
 
@@ -80,8 +77,8 @@
       margin-right: 8px;
     }
 
-    button, input[type="submit"] { cursor: pointer; touch-action: manipulation; }
-    .btn-submit { width: 100%; background-color: var(--accent-gold); color: #120e0c; border: none; border-radius: 8px; padding: 12px; font-weight: 700; font-size: 0.9rem; margin-top: 10px; display: block; text-align: center; }
+    button, input[type="button"] { cursor: pointer; touch-action: manipulation; }
+    .btn-submit { width: 100%; background-color: var(--accent-gold); color: #120e0c; border: none; border-radius: 8px; padding: 14px; font-weight: 700; font-size: 0.95rem; margin-top: 10px; display: block; text-align: center; }
 
     .books-grid { display: flex; flex-direction: column; gap: 12px; }
     .book-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; gap: 12px; }
@@ -144,13 +141,12 @@
       <button class="filter-btn" type="button" onclick="filtrar('Abandonados', this)">Abandonados</button>
     </div>
 
-    <!-- FORMULÁRIO COM SUBMISSÃO PADRÃO -->
-    <form class="form-card" id="form-livro" onsubmit="adicionarLivro(event)">
-      <h2 style="font-family:'Merriweather'; font-size:1rem; margin-bottom:12px;">Cadastrar Novo Livro</h2>
+    <div class="form-card">
+      <h2 style="font-family:Georgia, serif; font-size:1rem; margin-bottom:12px;">Cadastrar Novo Livro</h2>
       
       <div class="form-group">
         <label>Título *</label>
-        <input type="text" id="titulo" placeholder="Ex.: O Cemitério" required onblur="buscarCapaGoogle()">
+        <input type="text" id="titulo" placeholder="Ex.: O Cemitério" onblur="buscarCapaGoogle()">
       </div>
 
       <div class="input-row">
@@ -191,10 +187,10 @@
         <input type="file" id="capaArquivo" accept="image/*" onchange="processarCapaGaleria(this)">
       </div>
 
-      <input type="submit" class="btn-submit" value="Adicionar à Estante">
-    </form>
+      <button type="button" class="btn-submit" onclick="adicionarLivro()">Adicionar à Estante</button>
+    </div>
 
-    <h2 style="font-family:'Merriweather'; font-size:1.1rem; margin-bottom:12px;">Meus Livros</h2>
+    <h2 style="font-family:Georgia, serif; font-size:1.1rem; margin-bottom:12px;">Meus Livros</h2>
     <div class="books-grid" id="lista-livros"></div>
   </div>
 
@@ -202,7 +198,7 @@
   <div class="modal" id="modalLivro">
     <div class="modal-content">
       <button class="close-modal" type="button" onclick="fecharModal()">&times;</button>
-      <h3 style="font-family:'Merriweather'; margin-bottom:12px;">Editar / Detalhes</h3>
+      <h3 style="font-family:Georgia, serif; margin-bottom:12px;">Editar / Detalhes</h3>
       
       <input type="hidden" id="mod-id">
       
@@ -241,16 +237,19 @@
   </div>
 
   <script>
-    let biblioteca = [];
-    let metas = { mensal: 2, anual: 24 };
-    let categoriaFiltro = 'todos';
-    let capaTemp = '';
-    let capaModalTemp = '';
+    var biblioteca = [];
+    var metas = { mensal: 2, anual: 24 };
+    var categoriaFiltro = 'todos';
+    var capaTemp = '';
+    var capaModalTemp = '';
 
     window.onload = function() {
       try {
-        biblioteca = JSON.parse(localStorage.getItem('estante_v6')) || [];
-        metas = JSON.parse(localStorage.getItem('metas_v6')) || { mensal: 2, anual: 24 };
+        var dadosSalvos = localStorage.getItem('estante_v_final');
+        if (dadosSalvos) biblioteca = JSON.parse(dadosSalvos);
+        
+        var metasSalvas = localStorage.getItem('metas_v_final');
+        if (metasSalvas) metas = JSON.parse(metasSalvas);
       } catch(e) {
         biblioteca = [];
       }
@@ -259,17 +258,17 @@
 
     function comprimirFoto(file, callback) {
       if (!file) return;
-      const reader = new FileReader();
+      var reader = new FileReader();
       reader.onload = function(e) {
-        const img = new Image();
+        var img = new Image();
         img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const maxDim = 250;
-          let w = img.width, h = img.height;
+          var canvas = document.createElement('canvas');
+          var maxDim = 200;
+          var w = img.width, h = img.height;
           if (w > h) { if (w > maxDim) { h *= maxDim / w; w = maxDim; } }
           else { if (h > maxDim) { w *= maxDim / h; h = maxDim; } }
           canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
+          var ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
           callback(canvas.toDataURL('image/jpeg', 0.5));
         };
@@ -294,41 +293,45 @@
       }
     }
 
-    async function buscarCapaGoogle() {
-      const t = document.getElementById('titulo').value.trim();
+    function buscarCapaGoogle() {
+      var t = document.getElementById('titulo').value.trim();
       if (!t || capaTemp) return;
-      try {
-        const res = await fetch('https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(t));
-        const d = await res.json();
-        if (d.items && d.items[0]) {
-          const info = d.items[0].volumeInfo;
-          if (info.imageLinks && info.imageLinks.thumbnail) {
-            capaTemp = info.imageLinks.thumbnail.replace('http://', 'https://');
+      
+      fetch('https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(t))
+        .then(function(res) { return res.json(); })
+        .then(function(d) {
+          if (d.items && d.items[0]) {
+            var info = d.items[0].volumeInfo;
+            if (info.imageLinks && info.imageLinks.thumbnail) {
+              capaTemp = info.imageLinks.thumbnail.replace('http://', 'https://');
+            }
+            if (info.authors && !document.getElementById('autor').value) {
+              document.getElementById('autor').value = info.authors.join(', ');
+            }
+            if (info.pageCount && !document.getElementById('totalPaginas').value) {
+              document.getElementById('totalPaginas').value = info.pageCount;
+            }
           }
-          if (info.authors && !document.getElementById('autor').value) {
-            document.getElementById('autor').value = info.authors.join(', ');
-          }
-          if (info.pageCount && !document.getElementById('totalPaginas').value) {
-            document.getElementById('totalPaginas').value = info.pageCount;
-          }
-        }
-      } catch(e) {}
+        }).catch(function(e){});
     }
 
-    function adicionarLivro(e) {
-      if (e) e.preventDefault();
+    function adicionarLivro() {
+      var campoTitulo = document.getElementById('titulo');
+      var titulo = campoTitulo.value.trim();
+      
+      if (!titulo) {
+        alert("Por favor, preencha o título do livro!");
+        return;
+      }
 
-      const titulo = document.getElementById('titulo').value.trim();
-      if (!titulo) return;
-
-      const total = parseInt(document.getElementById('totalPaginas').value) || 0;
-      let atual = parseInt(document.getElementById('paginaAtual').value) || 0;
-      let cat = document.getElementById('categoria').value;
+      var total = parseInt(document.getElementById('totalPaginas').value) || 0;
+      var atual = parseInt(document.getElementById('paginaAtual').value) || 0;
+      var cat = document.getElementById('categoria').value;
 
       if (atual >= total && total > 0) cat = 'Concluídos';
 
-      const novo = {
-        id: Date.now(),
+      var novo = {
+        id: new Date().getTime(),
         titulo: titulo,
         autor: document.getElementById('autor').value.trim() || 'Desconhecido',
         genero: document.getElementById('genero').value.trim() || 'Geral',
@@ -341,6 +344,7 @@
       biblioteca.push(novo);
       salvar();
 
+      // Limpeza dos campos
       document.getElementById('titulo').value = '';
       document.getElementById('autor').value = '';
       document.getElementById('genero').value = '';
@@ -349,28 +353,35 @@
       document.getElementById('capaArquivo').value = '';
       capaTemp = '';
 
-      alert('Livro adicionado com sucesso!');
+      alert("Livro adicionado!");
     }
 
     function filtrar(cat, btn) {
       categoriaFiltro = cat;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      if(btn) btn.classList.add('active');
+      var btns = document.querySelectorAll('.filter-btn');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].classList.remove('active');
+      }
+      if (btn) btn.classList.add('active');
       renderizar();
     }
 
     function definirMetas() {
-      const m = prompt("Meta Mensal de livros:", metas.mensal);
-      const a = prompt("Meta Anual de livros:", metas.anual);
+      var m = prompt("Meta Mensal de livros:", metas.mensal);
+      var a = prompt("Meta Anual de livros:", metas.anual);
       if (m) metas.mensal = parseInt(m) || 1;
       if (a) metas.anual = parseInt(a) || 1;
-      localStorage.setItem('metas_v6', JSON.stringify(metas));
+      localStorage.setItem('metas_v_final', JSON.stringify(metas));
       renderizar();
     }
 
     function abrirModal(id) {
-      const l = biblioteca.find(item => item.id === id);
+      var l = null;
+      for (var i = 0; i < biblioteca.length; i++) {
+        if (biblioteca[i].id === id) { l = biblioteca[i]; break; }
+      }
       if (!l) return;
+
       document.getElementById('mod-id').value = l.id;
       document.getElementById('mod-titulo').value = l.titulo;
       document.getElementById('mod-autor').value = l.autor;
@@ -387,8 +398,12 @@
     }
 
     function salvarEdicaoModal() {
-      const id = Number(document.getElementById('mod-id').value);
-      const l = biblioteca.find(item => item.id === id);
+      var id = Number(document.getElementById('mod-id').value);
+      var l = null;
+      for (var i = 0; i < biblioteca.length; i++) {
+        if (biblioteca[i].id === id) { l = biblioteca[i]; break; }
+      }
+
       if (l) {
         l.titulo = document.getElementById('mod-titulo').value;
         l.autor = document.getElementById('mod-autor').value;
@@ -404,59 +419,59 @@
     }
 
     function excluirLivroModal() {
-      const id = Number(document.getElementById('mod-id').value);
-      biblioteca = biblioteca.filter(l => l.id !== id);
+      var id = Number(document.getElementById('mod-id').value);
+      var novaBib = [];
+      for (var i = 0; i < biblioteca.length; i++) {
+        if (biblioteca[i].id !== id) novaBib.push(biblioteca[i]);
+      }
+      biblioteca = novaBib;
       salvar();
       fecharModal();
     }
 
     function avancarPagina(id) {
-      const l = biblioteca.find(item => item.id === id);
-      if (l && l.paginaAtual < l.totalPaginas) {
-        l.paginaAtual++;
-        if (l.paginaAtual >= l.totalPaginas) l.categoria = 'Concluídos';
-        salvar();
+      for (var i = 0; i < biblioteca.length; i++) {
+        if (biblioteca[i].id === id) {
+          if (biblioteca[i].paginaAtual < biblioteca[i].totalPaginas) {
+            biblioteca[i].paginaAtual++;
+            if (biblioteca[i].paginaAtual >= biblioteca[i].totalPaginas) biblioteca[i].categoria = 'Concluídos';
+            salvar();
+          }
+          break;
+        }
       }
     }
 
     function salvar() {
       try {
-        localStorage.setItem('estante_v6', JSON.stringify(biblioteca));
+        localStorage.setItem('estante_v_final', JSON.stringify(biblioteca));
       } catch(e) {
-        alert("O armazenamento do telemóvel está cheio.");
+        alert("Erro ao salvar: Memória cheia!");
       }
       renderizar();
     }
 
     function renderizar() {
-      const lista = document.getElementById('lista-livros');
-      const termo = document.getElementById('busca').value.toLowerCase();
+      var lista = document.getElementById('lista-livros');
+      var termo = document.getElementById('busca').value.toLowerCase();
       lista.innerHTML = '';
 
-      let paginasTotais = 0, emAndamento = 0, concluidos = 0;
+      var paginasTotais = 0, emAndamento = 0, concluidos = 0;
 
-      biblioteca.forEach(l => {
-        paginasTotais += l.paginaAtual;
-        if (l.categoria === 'Lendo') emAndamento++;
-        if (l.categoria === 'Concluídos') concluidos++;
-      });
+      for (var i = 0; i < biblioteca.length; i++) {
+        var item = biblioteca[i];
+        paginasTotais += item.paginaAtual;
+        if (item.categoria === 'Lendo') emAndamento++;
+        if (item.categoria === 'Concluídos') concluidos++;
+      }
 
-      const filtrados = biblioteca.filter(l => {
-        const cOk = categoriaFiltro === 'todos' || l.categoria === categoriaFiltro;
-        const bOk = l.titulo.toLowerCase().includes(termo) || l.autor.toLowerCase().includes(termo);
-        return cOk && bOk;
-      });
+      for (var j = 0; j < biblioteca.length; j++) {
+        var l = biblioteca[j];
+        var cOk = categoriaFiltro === 'todos' || l.categoria === categoriaFiltro;
+        var bOk = l.titulo.toLowerCase().indexOf(termo) !== -1 || l.autor.toLowerCase().indexOf(termo) !== -1;
 
-      filtrados.forEach(l => {
-        const pct = l.totalPaginas > 0 ? Math.min(100, Math.round((l.paginaAtual / l.totalPaginas) * 100)) : 0;
-        const capaHtml = l.capaUrl 
-          ? `<img src="${l.capaUrl}" class="book-cover">`
-          : `<div class="book-cover" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:4px;font-size:0.6rem;color:#c89f68;">${l.titulo}</div>`;
-
-        lista.innerHTML += `
-          <div class="book-card">
-            ${capaHtml}
-            <div class="book-info">
-              <div class="book-title-item">${l.titulo}</div>
-              <div class="book-author">${l.autor}</div>
-            
+        if (cOk && bOk) {
+          var pct = l.totalPaginas > 0 ? Math.min(100, Math.round((l.paginaAtual / l.totalPaginas) * 100)) : 0;
+          var capaHtml = l.capaUrl 
+            ? '<img src="' + l.capaUrl + '" class="book-cover">'
+       
